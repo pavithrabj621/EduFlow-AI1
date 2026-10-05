@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduFlow AI – Intelligent Teacher–AI Collaboration Platform</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Font: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- html2pdf for generating PDF question papers -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .nav-btn.active { background-color: #16a34a; color: #ffffff; }
+    .paper-preview-box { background-color: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      
+      <!-- Logo & Academic Context -->
+      <div class="flex items-center space-x-3">
+        <div class="bg-brand-600 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl shadow-sm">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-slate-900 leading-tight">EduFlow AI</h1>
+          <p class="text-xs text-brand-600 font-medium">Department of Computer Science & Engineering | Semester 5</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex space-x-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button onclick="switchTab('teachmate')" id="tab-teachmate" class="nav-btn active px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center space-x-2">
+          <i class="fa-solid fa-robot"></i><span>TeachMate</span>
+        </button>
+        <button onclick="switchTab('papergen')" id="tab-papergen" class="nav-btn text-slate-600 hover:text-slate-900 px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center space-x-2">
+          <i class="fa-solid fa-file-signature"></i><span>PaperGen</span>
+        </button>
+        <button onclick="switchTab('attendiq')" id="tab-attendiq" class="nav-btn text-slate-600 hover:text-slate-900 px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center space-x-2">
+          <i class="fa-solid fa-user-check"></i><span>AttendIQ</span>
+        </button>
+        <button onclick="switchTab('smartschedule')" id="tab-smartschedule" class="nav-btn text-slate-600 hover:text-slate-900 px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center space-x-2">
+          <i class="fa-solid fa-calendar-days"></i><span>SmartSchedule</span>
+        </button>
+      </nav>
+
+      <!-- Status Indicator -->
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700 border border-brand-100">
+          <span class="w-2 h-2 mr-1.5 bg-brand-500 rounded-full animate-pulse"></span> Backend Proxy Mode
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAVIGATION -->
+  <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex justify-around">
+    <button onclick="switchTab('teachmate')" class="text-xs text-brand-600 font-medium py-1">TeachMate</button>
+    <button onclick="switchTab('papergen')" class="text-xs text-slate-600 font-medium py-1">PaperGen</button>
+    <button onclick="switchTab('attendiq')" class="text-xs text-slate-600 font-medium py-1">AttendIQ</button>
+    <button onclick="switchTab('smartschedule')" class="text-xs text-slate-600 font-medium py-1">SmartSchedule</button>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6">
+
+    <!-- HERO / CONTEXT BANNER -->
+    <div class="bg-gradient-to-r from-brand-600 to-emerald-800 rounded-2xl p-6 text-white mb-6 shadow-sm flex flex-col md:flex-row items-center justify-between">
+      <div class="mb-4 md:mb-0 max-w-2xl">
+        <span class="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Human–AI Collaboration Platform</span>
+        <h2 class="text-2xl font-bold mt-2">CSE 3rd Year (Semester 5) Academic Portal</h2>
+        <p class="text-brand-100 text-sm mt-1">AI Agent Copilot for Cloud Computing, DBMS, Computer Networks, and Operating Systems preparation.</p>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- FEATURE 1: TEACHMATE (AI TEACHER ASSISTANT CHATBOT) -->
+    <!-- ========================================================================= -->
+    <section id="sec-teachmate" class="block space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Sidebar Controls / Resource Context -->
+        <div class="lg:col-span-1 space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-sm flex items-center mb-3 text-brand-700">
+              <i class="fa-solid fa-folder-open mr-2"></i> Department Syllabus Context
+            </h3>
+            <p class="text-xs text-slate-500 mb-3">TeachMate prioritizes your uploaded B.Tech CSE 5th Sem curriculum notes over generic web answers.</p>
+            
+            <div class="space-y-2">
+              <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs flex justify-between items-center">
+                <span class="font-medium text-slate-700"><i class="fa-regular fa-file-pdf text-red-500 mr-2"></i>Cloud_Computing_Unit3.pdf</span>
+                <span class="text-brand-600 font-bold">Loaded</span>
+              </div>
+              <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs flex justify-between items-center">
+                <span class="font-medium text-slate-700"><i class="fa-regular fa-file-word text-blue-500 mr-2"></i>CN_Lab_Manual.docx</span>
+                <span class="text-brand-600 font-bold">Loaded</span>
+              </div>
+            </div>
+
+            <label class="mt-4 block text-center px-3 py-2 bg-brand-50 text-brand-700 border border-brand-200 rounded-lg text-xs font-semibold cursor-pointer hover:bg-brand-100 transition">
+              <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Attach Course Syllabus
+              <input type="file" class="hidden" onchange="alert('Syllabus document attached to TeachMate AI agent context.')">
+            </label>
+          </div>
+
+          <!-- Quick Teaching Prompts -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-2">Teaching Prompts</h4>
+            <div class="space-y-2 text-xs">
+              <button onclick="setPrompt('Explain Virtualization types (Hypervisor Type-1 vs Type-2) for CSE 5th Sem students with a real-world analogy.')" class="w-full text-left p-2 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 rounded border border-slate-200 transition">
+                💡 Hypervisor Type 1 vs 2 Explanation
+              </button>
+              <button onclick="setPrompt('Generate 5 quiz questions on Docker Containers and Kubernetes pods for unit test preparation.')" class="w-full text-left p-2 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 rounded border border-slate-200 transition">
+                📝 5 Quick Quiz Questions on Docker
+              </button>
+              <button onclick="setPrompt('Draft a 45-minute lesson plan for TCP/IP 3-Way Handshake including lab demo steps.')" class="w-full text-left p-2 bg-slate-50 hover:bg-brand-50 hover:text-brand-700 rounded border border-slate-200 transition">
+                ⏱️ Lesson Plan: TCP 3-Way Handshake
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Workspace -->
+        <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[580px]">
+          <div class="px-5 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+            <div class="flex items-center space-x-2">
+              <div class="w-3 h-3 bg-brand-500 rounded-full"></div>
+              <span class="font-semibold text-sm text-slate-800">TeachMate Assistant (Google Gemini via Express Backend)</span>
+            </div>
+            <span class="text-xs text-slate-400">Context: CSE 3rd Year Curriculum</span>
+          </div>
+
+          <!-- Chat Window -->
+          <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4">
+            <!-- AI Welcome Message -->
+            <div class="flex items-start space-x-3">
+              <div class="bg-brand-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">
+                AI
+              </div>
+              <div class="bg-slate-100 text-slate-800 p-3.5 rounded-2xl rounded-tl-none max-w-2xl text-sm leading-relaxed border border-slate-200">
+                Hello Professor! I am <strong>TeachMate</strong>, powered by Google Gemini. Ask me to generate lecture summaries, explain complex computer science concepts, or prepare classroom slide outlines for CSE Semester 5.
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="p-3 border-t border-slate-200 bg-white rounded-b-xl">
+            <form onsubmit="handleChatSubmit(event)" class="flex space-x-2">
+              <input type="text" id="chat-input" placeholder="Ask TeachMate to summarize notes, solve a CS problem, or structure a lecture..." class="flex-1 border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+              <button type="submit" id="send-btn" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center space-x-1">
+                <span>Send</span>
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- FEATURE 2: PAPERGEN (AUTOMATED QUESTION PAPER GENERATOR) -->
+    <!-- ========================================================================= -->
+    <section id="sec-papergen" class="hidden space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Controls & Specification Form -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-900 text-base border-b pb-2 flex items-center text-brand-700">
+            <i class="fa-solid fa-sliders mr-2"></i> Paper Parameters
+          </h3>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">College / Institution Name</label>
+            <input type="text" id="pg-college" value="National Institute of Computer Engineering" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-brand-500 focus:border-brand-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Subject Name & Code</label>
+              <input type="text" id="pg-subject" value="CS3501 - Cloud Computing" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Semester & Dept</label>
+              <input type="text" id="pg-dept" value="Sem 5 - B.Tech CSE" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Syllabus Range / Units Included</label>
+            <textarea id="pg-syllabus" rows="3" class="w-full border border-slate-300 rounded-lg p-2.5 text-xs">Unit 1: Cloud Architecture & Virtualization (Hypervisors, Xen, KVM)
+Unit 2: Cloud Storage Systems & HDFS
+Unit 3: Cloud Security, IAM, and Containers (Docker/Kubernetes)</textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Total Marks</label>
+              <select id="pg-marks" class="w-full border border-slate-300 rounded-lg p-2 text-xs">
+                <option value="50">50 Marks (Mid-Term)</option>
+                <option value="100">100 Marks (End-Sem)</option>
+                <option value="25">25 Marks (Unit Test)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Exam Date</label>
+              <input type="date" id="pg-date" value="2026-10-15" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs">
+            </div>
+          </div>
+
+          <button onclick="generateQuestionPaperVariants()" id="btn-gen-paper" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg text-xs shadow transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generate 2 AI Suggestions via Backend</span>
+          </button>
+        </div>
+
+        <!-- Generated Output & Suggestions Panel -->
+        <div class="lg:col-span-2 space-y-4">
+          
+          <!-- Variant Switcher Bar -->
+          <div id="variant-bar" class="hidden bg-white p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+            <span class="text-xs font-bold text-slate-700">AI Generated Variants:</span>
+            <div class="flex space-x-2">
+              <button onclick="selectPaperVariant('A')" id="var-btn-A" class="px-3 py-1.5 bg-brand-600 text-white text-xs font-bold rounded-lg shadow-sm">
+                Suggestion A (Standard Concept)
+              </button>
+              <button onclick="selectPaperVariant('B')" id="var-btn-B" class="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200">
+                Suggestion B (Applied / Problem Solving)
+              </button>
+            </div>
+            <button onclick="downloadPaperPDF()" class="bg-brand-700 hover:bg-brand-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>Download PDF</span>
+            </button>
+          </div>
+
+          <!-- Printable Document Preview Canvas -->
+          <div id="paper-canvas" class="paper-preview-box p-8 min-h-[550px] rounded-xl relative">
+            <div id="paper-placeholder" class="text-center py-20 text-slate-400">
+              <i class="fa-solid fa-file-circle-plus text-5xl mb-3 text-slate-300"></i>
+              <p class="text-sm font-medium">Configure parameters on the left and click "Generate 2 AI Suggestions".</p>
+              <p class="text-xs mt-1">The backend will generate question papers adhering to guidelines.</p>
+            </div>
+
+            <!-- Dynamic Content Container -->
+            <div id="paper-content" class="hidden text-slate-900 text-xs leading-relaxed">
+              <!-- Rendered via JavaScript -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- FEATURE 3: ATTENDIQ (DIGITAL ATTENDANCE & ABSENTEE TRACKER) -->
+    <!-- ========================================================================= -->
+    <section id="sec-attendiq" class="hidden space-y-4">
+      
+      <!-- Top Overview Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Class Section</p>
+          <h4 class="text-lg font-bold text-slate-900">CSE - 3rd Year (Sem 5)</h4>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Total Registered Students</p>
+          <h4 class="text-xl font-bold text-slate-900" id="stat-total">20 Students</h4>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Today's Absentees Marked</p>
+          <h4 class="text-xl font-bold text-red-600" id="stat-absent-today">0</h4>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Class Attendance Rate</p>
+          <h4 class="text-xl font-bold text-brand-600" id="stat-rate">100%</h4>
+        </div>
+      </div>
+
+      <!-- Main Student Attendance Register Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">CSE 5th Sem Attendance Register (Roll 22CS01 to 22CS20)</h3>
+            <p class="text-xs text-slate-500">Toggle student presence status for today's class session.</p>
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="markAllPresent()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Mark All Present</button>
+            <button onclick="saveAttendanceRecord()" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold shadow">Save Today's Register</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+              <tr>
+                <th class="p-3.5">Roll No</th>
+                <th class="p-3.5">Student Name</th>
+                <th class="p-3.5">Subject</th>
+                <th class="p-3.5 text-center">Today's Status</th>
+                <th class="p-3.5 text-center">Cumulative Absences</th>
+                <th class="p-3.5 text-center">Attendance %</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-tbody" class="divide-y divide-slate-100">
+              <!-- Dynamically Populated via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- FEATURE 4: SMARTSCHEDULE (TIMETABLE & AI LEAVE AUTOMATION) -->
+    <!-- ========================================================================= -->
+    <section id="sec-smartschedule" class="hidden space-y-6">
+      
+      <!-- AI Substitution Action Banner -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm flex items-center text-brand-700">
+              <i class="fa-solid fa-calendar-check mr-2"></i> Intelligent Timetable & Substitution Re-allocator
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Report faculty leave to automatically trigger database scanning and conflict-free substitute assignment.</p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <select id="leave-teacher-select" class="border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium">
+              <option value="Cloud Computing Teacher">Absent: Cloud Computing Teacher (Prof. Sharma)</option>
+              <option value="DBMS Teacher">Absent: DBMS Teacher (Dr. Verma)</option>
+              <option value="Computer Networks Teacher">Absent: Computer Networks Teacher (Prof. Raj)</option>
+            </select>
+            <button onclick="runSmartSubstitution()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition flex items-center space-x-1 shrink-0">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Re-route Timetable</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Substitution Notification Alert Box -->
+        <div id="schedule-alert" class="hidden p-3 bg-brand-50 border border-brand-200 rounded-lg text-xs text-brand-800 flex items-start space-x-2">
+          <i class="fa-solid fa-circle-check text-brand-600 text-base mt-0.5"></i>
+          <div id="schedule-alert-text">
+            <!-- Dynamic Substitution Log -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Timetable Grid -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+          <span class="font-bold text-xs uppercase tracking-wider text-slate-700">CSE 3rd Year (Sem 5) Permanent Master Schedule</span>
+          <span class="text-xs text-slate-500">Academic Year 2026</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-center text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <th class="p-3 border-r border-slate-200 w-24">Day</th>
+                <th class="p-3 border-r border-slate-200">Period 1<br><span class="text-[10px] font-normal text-slate-500">09:00 - 10:00</span></th>
+                <th class="p-3 border-r border-slate-200">Period 2<br><span class="text-[10px] font-normal text-slate-500">10:00 - 11:00</span></th>
+                <th class="p-3 border-r border-slate-200 bg-slate-200/50 w-16">Tea Break</th>
+                <th class="p-3 border-r border-slate-200">Period 3<br><span class="text-[10px] font-normal text-slate-500">11:15 - 12:15</span></th>
+                <th class="p-3">Period 4<br><span class="text-[10px] font-normal text-slate-500">12:15 - 01:15</span></th>
+              </tr>
+            </thead>
+            <tbody id="timetable-body" class="divide-y divide-slate-200">
+              <!-- Populated via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+      EduFlow AI — B.Tech Computer Science & Engineering (3rd Year, Semester 5) Project Presentation
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC CONNECTED TO LOCAL EXPRESS BACKEND -->
+  <!-- ========================================================================= -->
+  <script>
+    // BACKEND SERVER ENDPOINT URL
+    const BACKEND_URL = "http://localhost:5000";
+
+    // INITIAL DUMMY DATABASE (CSE 5TH SEMESTER)
+    const students = Array.from({ length: 20 }, (_, i) => {
+      const num = String(i + 1).padStart(2, '0');
+      const names = [
+        "Aravind Swamy", "Bhavana K", "Chandresh M", "Divya Ramesh", "Eashwar P",
+        "Farhan Khan", "Gokul Nath", "Harini S", "Irfan Malik", "Janani V",
+        "Karthik Raja", "Lavanya B", "Manoj Kumar", "Nivedita R", "Om Prakash",
+        "Pooja Sharma", "Qasim Ali", "Rahul Verma", "Sneha Patel", "Tarun Kumar"
+      ];
+      return {
+        roll: `22CS${num}`,
+        name: names[i],
+        subject: "Cloud Computing / CN",
+        absentToday: false,
+        cumulativeAbsences: Math.floor(Math.random() * 4),
+        totalClasses: 30
+      };
+    });
+
+    let masterTimetable = [
+      { day: "Monday", p1: "Cloud Computing", p2: "Database Systems", p3: "Computer Networks", p4: "CN Lab" },
+      { day: "Tuesday", p1: "Computer Networks", p2: "Cloud Computing", p3: "Operating Systems", p4: "Soft Skills" },
+      { day: "Wednesday", p1: "Database Systems", p2: "Operating Systems", p3: "Cloud Computing", p4: "Cloud Lab" },
+      { day: "Thursday", p1: "Cloud Computing", p2: "Computer Networks", p3: "Database Systems", p4: "Seminar" },
+      { day: "Friday", p1: "Operating Systems", p2: "Cloud Computing", p3: "Aptitude Prep", p4: "Library" }
+    ];
+
+    let generatedPaperVariants = { A: "", B: "" };
+
+    function escapeHtml(value) {
+      const div = document.createElement('div');
+      div.textContent = value;
+      return div.innerHTML;
+    }
+
+    // PAGE TAB SWITCHER
+    function switchTab(tabId) {
+      ['teachmate', 'papergen', 'attendiq', 'smartschedule'].forEach(id => {
+        document.getElementById(`sec-${id}`).classList.add('hidden');
+        document.getElementById(`tab-${id}`).classList.remove('active', 'bg-brand-600', 'text-white');
+        document.getElementById(`tab-${id}`).classList.add('text-slate-600');
+      });
+
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      activeBtn.classList.add('active', 'bg-brand-600', 'text-white');
+      activeBtn.classList.remove('text-slate-600');
+    }
+
+    // =========================================================================
+    // FEATURE 1: TEACHMATE CHATBOT (CALLS LOCAL BACKEND)
+    // =========================================================================
+    function setPrompt(text) {
+      document.getElementById('chat-input').value = text;
+    }
+
+    function cleanHtmlResponse(rawHtml) {
+      if (!rawHtml || typeof rawHtml !== 'string') return '';
+
+      const trimmed = rawHtml.trim();
+      if (!trimmed) return '';
+
+      try {
+        const doc = new DOMParser().parseFromString(trimmed, 'text/html');
+        const bodyHtml = doc.body?.innerHTML?.trim();
+        if (bodyHtml) return bodyHtml;
+      } catch (err) {
+        console.warn('Failed to parse AI HTML content:', err);
+      }
+
+      return trimmed
+        .replace(/<!DOCTYPE html>/gi, '')
+        .replace(/<html[^>]*>/gi, '')
+        .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
+        .replace(/<body[^>]*>/gi, '')
+        .replace(/<\/body>/gi, '')
+        .replace(/<\/html>/gi, '')
+        .trim();
+    }
+
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('chat-input');
+      const userMsg = inputEl.value.trim();
+      if (!userMsg) return;
+
+      const chatBox = document.getElementById('chat-box');
+      const sendButton = document.getElementById('send-btn');
+
+      // Append User Message
+      chatBox.innerHTML += `
+        <div class="flex items-start justify-end space-x-3">
+          <div class="bg-brand-600 text-white p-3.5 rounded-2xl rounded-tr-none max-w-xl text-sm leading-relaxed shadow-sm">
+            ${escapeHtml(userMsg)}
+          </div>
+        </div>
+      `;
+
+      inputEl.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Temporary Loading Indicator
+      const loadingId = "loader-" + Date.now();
+      chatBox.innerHTML += `
+        <div id="${loadingId}" class="flex items-start space-x-3">
+          <div class="bg-brand-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+          <div class="bg-slate-100 text-slate-500 p-3.5 rounded-2xl rounded-tl-none text-sm animate-pulse border border-slate-200">
+            TeachMate is thinking via Node Backend...
+          </div>
+        </div>
+      `;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      sendButton.disabled = true;
+      sendButton.classList.add('opacity-60', 'cursor-wait');
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: `You are TeachMate, an AI assistant for B.Tech Computer Science & Engineering 3rd Year (Semester 5) professors. User query: ${userMsg}. Provide a clear, highly structured academic response suitable for teaching.`
+          })
+        });
+
+        const data = await response.json().catch(() => ({}));
+        document.getElementById(loadingId)?.remove();
+
+        if (response.ok) {
+          const aiText = (data.text || 'I could not generate a response. Please try again.').trim();
+          chatBox.innerHTML += `
+            <div class="flex items-start space-x-3">
+              <div class="bg-brand-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+              <div class="bg-slate-100 text-slate-800 p-3.5 rounded-2xl rounded-tl-none max-w-2xl text-sm leading-relaxed border border-slate-200 whitespace-pre-line">
+                ${escapeHtml(aiText)}
+              </div>
+            </div>
+          `;
+        } else {
+          throw new Error(data.error || 'Backend Error');
+        }
+      } catch (err) {
+        document.getElementById(loadingId)?.remove();
+        chatBox.innerHTML += `
+          <div class="flex items-start space-x-3">
+            <div class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">!</div>
+            <div class="bg-red-50 text-red-700 p-3.5 rounded-2xl rounded-tl-none max-w-2xl text-sm border border-red-200">
+              ${escapeHtml(err.message || `Unable to connect to ${BACKEND_URL}. Ensure the backend is running.`)}
+            </div>
+          </div>
+        `;
+      }
+      sendButton.disabled = false;
+      sendButton.classList.remove('opacity-60', 'cursor-wait');
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // =========================================================================
+    // FEATURE 2: PAPERGEN (CALLS LOCAL BACKEND)
+    // =========================================================================
+    async function generateQuestionPaperVariants() {
+      const college = document.getElementById('pg-college').value;
+      const subject = document.getElementById('pg-subject').value;
+      const dept = document.getElementById('pg-dept').value;
+      const syllabus = document.getElementById('pg-syllabus').value;
+      const marks = document.getElementById('pg-marks').value;
+      const date = document.getElementById('pg-date').value;
+
+      const placeholder = document.getElementById('paper-placeholder');
+      const content = document.getElementById('paper-content');
+      const variantBar = document.getElementById('variant-bar');
+      const generateButton = document.getElementById('btn-gen-paper');
+
+      placeholder.innerHTML = `
+        <i class="fa-solid fa-spinner fa-spin text-4xl text-brand-600 mb-3"></i>
+        <p class="text-sm font-semibold text-slate-700">Generating 2 Question Paper Suggestions via Node Backend...</p>
+      `;
+      placeholder.classList.remove('hidden');
+      content.classList.add('hidden');
+      variantBar.classList.add('hidden');
+      generateButton.disabled = true;
+      generateButton.classList.add('opacity-60', 'cursor-wait');
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/generate-paper`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ college, subject, dept, syllabus, marks, date })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+          generatedPaperVariants.A = cleanHtmlResponse(data.variantA || '');
+          generatedPaperVariants.B = cleanHtmlResponse(data.variantB || '');
+
+          if (!generatedPaperVariants.A && !generatedPaperVariants.B) {
+            throw new Error('No paper content was returned by the backend.');
+          }
+
+          placeholder.classList.add('hidden');
+          content.classList.remove('hidden');
+          variantBar.classList.remove('hidden');
+
+          selectPaperVariant('A');
+        } else {
+          throw new Error(data.error || 'Failed to generate paper.');
+        }
+      } catch (e) {
+        placeholder.innerHTML = `<p class="text-red-600 font-bold">${escapeHtml(e.message || 'Failed to generate paper. Check the backend and try again.')}</p>`;
+      } finally {
+        generateButton.disabled = false;
+        generateButton.classList.remove('opacity-60', 'cursor-wait');
+      }
+    }
+
+    function selectPaperVariant(varKey) {
+      const content = document.getElementById('paper-content');
+      content.innerHTML = generatedPaperVariants[varKey] || '<p class="text-red-600">Paper content unavailable.</p>';
+
+      const btnA = document.getElementById('var-btn-A');
+      const btnB = document.getElementById('var-btn-B');
+
+      if (varKey === 'A') {
+        btnA.className = "px-3 py-1.5 bg-brand-600 text-white text-xs font-bold rounded-lg shadow-sm";
+        btnB.className = "px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200";
+      } else {
+        btnB.className = "px-3 py-1.5 bg-brand-600 text-white text-xs font-bold rounded-lg shadow-sm";
+        btnA.className = "px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200";
+      }
+    }
+
+    function downloadPaperPDF() {
+      const element = document.getElementById('paper-content');
+      const opt = {
+        margin:       0.5,
+        filename:     'CSE_Question_Paper.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // =========================================================================
+    // FEATURE 3: ATTENDIQ
+    // =========================================================================
+    function renderAttendanceTable() {
+      const tbody = document.getElementById('attendance-tbody');
+      tbody.innerHTML = '';
+
+      let totalAbsentsToday = 0;
+
+      students.forEach((s, idx) => {
+        if (s.absentToday) totalAbsentsToday++;
+        const totalAbsences = s.cumulativeAbsences + (s.absentToday ? 1 : 0);
+        const percentage = Math.round(((s.totalClasses - totalAbsences) / s.totalClasses) * 100);
+
+        const isLow = percentage < 75;
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3.5 font-semibold text-slate-900">${s.roll}</td>
+            <td class="p-3.5 font-medium text-slate-800">${s.name}</td>
+            <td class="p-3.5 text-slate-500">${s.subject}</td>
+            <td class="p-3.5 text-center">
+              <button onclick="toggleAttendance(${idx})" class="px-3 py-1 rounded-full text-xs font-bold transition ${s.absentToday ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-brand-100 text-brand-700 border border-brand-300'}">
+                ${s.absentToday ? 'ABSENT' : 'PRESENT'}
+              </button>
+            </td>
+            <td class="p-3.5 text-center font-bold ${totalAbsences > 3 ? 'text-red-600' : 'text-slate-700'}">
+              ${totalAbsences} Days
+            </td>
+            <td class="p-3.5 text-center">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${isLow ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-slate-100 text-slate-700'}">
+                ${percentage}% ${isLow ? '⚠️ Low' : ''}
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('stat-absent-today').innerText = totalAbsentsToday;
+      const rate = Math.round(((students.length - totalAbsentsToday) / students.length) * 100);
+      document.getElementById('stat-rate').innerText = `${rate}%`;
+    }
+
+    function toggleAttendance(idx) {
+      students[idx].absentToday = !students[idx].absentToday;
+      renderAttendanceTable();
+    }
+
+    function markAllPresent() {
+      students.forEach(s => s.absentToday = false);
+      renderAttendanceTable();
+    }
+
+    function saveAttendanceRecord() {
+      alert("Today's CSE 5th Sem attendance record successfully committed to college database!");
+    }
+
+    // =========================================================================
+    // FEATURE 4: SMARTSCHEDULE
+    // =========================================================================
+    function renderTimetable() {
+      const tbody = document.getElementById('timetable-body');
+      tbody.innerHTML = '';
+
+      masterTimetable.forEach(row => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-bold bg-slate-50 border-r border-slate-200 text-slate-800">${row.day}</td>
+            <td class="p-3 border-r border-slate-200">${formatCell(row.p1)}</td>
+            <td class="p-3 border-r border-slate-200">${formatCell(row.p2)}</td>
+            <td class="p-3 border-r border-slate-200 bg-slate-100 text-slate-400 font-semibold text-[10px] uppercase">Break</td>
+            <td class="p-3 border-r border-slate-200">${formatCell(row.p3)}</td>
+            <td class="p-3">${formatCell(row.p4)}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function formatCell(subject) {
+      if (subject.includes('(Substituted)')) {
+        return `<span class="bg-emerald-100 text-emerald-900 px-2 py-1 rounded font-bold border border-emerald-300 block text-[11px]">${subject}</span>`;
+      }
+      return `<span class="font-medium text-slate-700">${subject}</span>`;
+    }
+
+    function runSmartSubstitution() {
+      const absentTeacher = document.getElementById('leave-teacher-select').value;
+      const alertBox = document.getElementById('schedule-alert');
+      const alertText = document.getElementById('schedule-alert-text');
+
+      let replacedCount = 0;
+
+      masterTimetable = masterTimetable.map(row => {
+        let newRow = { ...row };
+        ['p1', 'p2', 'p3', 'p4'].forEach(p => {
+          if (absentTeacher.includes('Cloud Computing') && newRow[p] === 'Cloud Computing') {
+            newRow[p] = 'CN Lab (Substituted)';
+            replacedCount++;
+          } else if (absentTeacher.includes('DBMS') && newRow[p] === 'Database Systems') {
+            newRow[p] = 'Operating Systems (Substituted)';
+            replacedCount++;
+          } else if (absentTeacher.includes('Computer Networks') && newRow[p] === 'Computer Networks') {
+            newRow[p] = 'Database Systems (Substituted)';
+            replacedCount++;
+          }
+        });
+        return newRow;
+      });
+
+      renderTimetable();
+
+      alertBox.classList.remove('hidden');
+      alertText.innerHTML = `
+        <strong>SmartSchedule AI Agent Workflow Triggered:</strong><br>
+        Detected leave for <u>${absentTeacher}</u>. Scanned faculty availability database and automatically re-allocated <strong>${replacedCount} period(s)</strong> to prevent free classes. HOD review status: <span class="text-brand-700 font-bold">Approved</span>.
+      `;
+    }
+
+    // INITIALIZATION ON LOAD
+    window.onload = function() {
+      renderAttendanceTable();
+      renderTimetable();
+    };
+  </script>
+</body>
+</html>
